@@ -5,7 +5,7 @@ import { useSite } from '../context/SiteContext';
 import { Github, Linkedin, Twitter } from 'lucide-react';
 
 interface FooterProps {
-  onNavigate: (section: SectionId) => void;
+  onNavigate: (section: SectionId | 'admin') => void;
   darkMode?: boolean;
 }
 

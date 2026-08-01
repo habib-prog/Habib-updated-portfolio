@@ -25,7 +25,12 @@ function AppContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleNavigate = (section: SectionId) => {
+  const handleNavigate = (section: SectionId | 'admin') => {
+    if (section === 'admin') {
+      navigateToAdmin();
+      return;
+    }
+
     setActiveSection(section);
     const element = document.getElementById(section);
     if (element) {
