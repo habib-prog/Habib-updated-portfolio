@@ -3,7 +3,15 @@ const configuredApiBaseUrl = (
 ).trim();
 const apiBaseUrl = configuredApiBaseUrl.replace(/\/$/, '');
 
-export const isApiAvailable = Boolean(configuredApiBaseUrl);
+// Render serves both the portfolio and Express API from the same origin, so it
+// does not need a public API URL. Netlify requires VITE_API_URL instead.
+const usesSameOriginApi = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.endsWith('.onrender.com')
+);
+
+export const isApiAvailable = Boolean(configuredApiBaseUrl) || usesSameOriginApi;
 
 export const apiRequest = (path: string, init?: RequestInit): Promise<Response> => {
   if (!isApiAvailable) {
