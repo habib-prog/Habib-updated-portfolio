@@ -79,11 +79,11 @@ async function startServer() {
   // Allow the separately deployed frontend to call this API.
   app.use((req, res, next) => {
     const clientOrigin = process.env.CLIENT_ORIGIN;
-    if (clientOrigin) {
-      res.header('Access-Control-Allow-Origin', clientOrigin);
-      res.header('Access-Control-Allow-Headers', 'Content-Type, x-admin-passkey');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    }
+    const origin = clientOrigin || req.headers.origin || '*';
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Headers', 'Content-Type, x-admin-passkey');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Expose-Headers', 'Content-Type');
     if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
   });

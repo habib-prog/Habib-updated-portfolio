@@ -211,9 +211,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ darkMode = false
       } else {
         showToast(data?.error || "Upload API is unavailable. Deploy and connect the Express backend before uploading images.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
-      showToast("Error uploading photo.");
+      const message = err?.message || "Error uploading photo.";
+      if (message.includes("Failed to fetch") || message.includes("NetworkError")) {
+        showToast("Upload failed: Network error or CORS block. Ensure the backend is running and CORS is configured.");
+      } else if (message.includes("timed out")) {
+        showToast("Upload timed out. The server took too long to respond.");
+      } else {
+        showToast(message);
+      }
     }
   };
 
