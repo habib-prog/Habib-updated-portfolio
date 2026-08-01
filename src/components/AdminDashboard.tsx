@@ -201,13 +201,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ darkMode = false
         body: formData,
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json") ? await res.json() : null;
 
-      if (res.ok) {
+      if (res.ok && data?.url) {
         setProfileForm(prev => ({ ...prev, photoUrl: data.url }));
         showToast("Profile photo uploaded to Cloudinary successfully!");
       } else {
-        showToast(`Upload failed: ${data.error || res.statusText}`);
+        showToast(data?.error || "Upload API is unavailable. Deploy and connect the Express backend before uploading images.");
       }
     } catch (err) {
       console.error("Upload error:", err);
