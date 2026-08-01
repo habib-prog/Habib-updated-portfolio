@@ -15,6 +15,7 @@ import {
   SYSTEM_SERVICES_STATUS 
 } from '../data/mockData';
 import habibProfilePhoto from '../assets/images/habib_profile_photo_1785529159357.jpg';
+import { apiRequest, isApiAvailable } from '../lib/api';
 
 export const DEFAULT_PROFILE: ProfileData = {
   name: "Habib",
@@ -221,8 +222,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load data from Express / MongoDB API on mount
   const loadData = async () => {
+    if (!isApiAvailable) return;
+
     try {
-      const profileRes = await fetch('/api/profile');
+      const profileRes = await apiRequest('/api/profile');
       if (profileRes.ok) {
         const profileData = await profileRes.json();
         setProfile(profileData);
@@ -232,7 +235,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const projectsRes = await fetch('/api/projects');
+      const projectsRes = await apiRequest('/api/projects');
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
         setProjects(projectsData.map((p: any) => ({ ...p, id: p.projectId })));
@@ -242,7 +245,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const articlesRes = await fetch('/api/articles');
+      const articlesRes = await apiRequest('/api/articles');
       if (articlesRes.ok) {
         const articlesData = await articlesRes.json();
         setArticles(articlesData.map((a: any) => ({ ...a, id: a.articleId })));
@@ -252,7 +255,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const papersRes = await fetch('/api/papers');
+      const papersRes = await apiRequest('/api/papers');
       if (papersRes.ok) {
         const papersData = await papersRes.json();
         setResearchPapers(papersData.map((p: any) => ({ ...p, id: p.paperId })));
@@ -262,7 +265,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const footerRes = await fetch('/api/footer');
+      const footerRes = await apiRequest('/api/footer');
       if (footerRes.ok) {
         const footerData = await footerRes.json();
         setFooterConfig(footerData);
@@ -284,7 +287,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const messagesRes = await fetch('/api/messages', {
+        const messagesRes = await apiRequest('/api/messages', {
           headers: { 'x-admin-passkey': adminPasskey }
         });
         if (messagesRes.ok) {
@@ -295,7 +298,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('Failed to fetch messages from API', e);
       }
     };
-    if (adminPasskey) {
+    if (isApiAvailable && adminPasskey) {
       loadMessages();
     }
   }, [adminPasskey]);
@@ -308,7 +311,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateFooterConfig = async (data: Partial<FooterConfig>) => {
     setFooterConfig(prev => ({ ...prev, ...data }));
     try {
-      await fetch('/api/footer', {
+      await apiRequest('/api/footer', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -324,7 +327,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = async (data: Partial<ProfileData>) => {
     setProfile(prev => ({ ...prev, ...data }));
     try {
-      await fetch('/api/profile', {
+      await apiRequest('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -341,7 +344,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProjects(prev => [project, ...prev]);
     try {
       const dbProject = { ...project, projectId: project.id };
-      await fetch('/api/projects', {
+      await apiRequest('/api/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -357,7 +360,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProject = async (id: string, data: Partial<Project>) => {
     setProjects(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     try {
-      await fetch(`/api/projects/${id}`, {
+      await apiRequest(`/api/projects/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -373,7 +376,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteProject = async (id: string) => {
     setProjects(prev => prev.filter(p => p.id !== id));
     try {
-      await fetch(`/api/projects/${id}`, {
+      await apiRequest(`/api/projects/${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-passkey': adminPasskey
@@ -388,7 +391,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setArticles(prev => [article, ...prev]);
     try {
       const dbArticle = { ...article, articleId: article.id };
-      await fetch('/api/articles', {
+      await apiRequest('/api/articles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -404,7 +407,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateArticle = async (id: string, data: Partial<BlogArticle>) => {
     setArticles(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
     try {
-      await fetch(`/api/articles/${id}`, {
+      await apiRequest(`/api/articles/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +423,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteArticle = async (id: string) => {
     setArticles(prev => prev.filter(a => a.id !== id));
     try {
-      await fetch(`/api/articles/${id}`, {
+      await apiRequest(`/api/articles/${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-passkey': adminPasskey
@@ -435,7 +438,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setResearchPapers(prev => [paper, ...prev]);
     try {
       const dbPaper = { ...paper, paperId: paper.id };
-      await fetch('/api/papers', {
+      await apiRequest('/api/papers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -451,7 +454,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateResearchPaper = async (id: string, data: Partial<ResearchPaper>) => {
     setResearchPapers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     try {
-      await fetch(`/api/papers/${id}`, {
+      await apiRequest(`/api/papers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -467,7 +470,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteResearchPaper = async (id: string) => {
     setResearchPapers(prev => prev.filter(p => p.id !== id));
     try {
-      await fetch(`/api/papers/${id}`, {
+      await apiRequest(`/api/papers/${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-passkey': adminPasskey
@@ -488,7 +491,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setContactMessages(prev => [newMessage, ...prev]);
     try {
-      const res = await fetch('/api/messages', {
+      const res = await apiRequest('/api/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -507,7 +510,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const markMessageAsRead = async (id: string) => {
     setContactMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
     try {
-      await fetch(`/api/messages/${id}/read`, {
+      await apiRequest(`/api/messages/${id}/read`, {
         method: 'PUT',
         headers: {
           'x-admin-passkey': adminPasskey
@@ -521,7 +524,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteContactMessage = async (id: string) => {
     setContactMessages(prev => prev.filter(m => m.id !== id));
     try {
-      await fetch(`/api/messages/${id}`, {
+      await apiRequest(`/api/messages/${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-passkey': adminPasskey
@@ -547,7 +550,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(`${STORAGE_KEY}_footer`);
 
     try {
-      await fetch('/api/reset', {
+      await apiRequest('/api/reset', {
         method: 'POST',
         headers: {
           'x-admin-passkey': adminPasskey
