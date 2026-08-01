@@ -15,14 +15,31 @@ function AppContent() {
   const { refreshData } = useSite();
   const [activeSection, setActiveSection] = useState<SectionId>('overview');
   const [darkMode, setDarkMode] = useState<boolean>(false);
-  const [isAdminRoute, setIsAdminRoute] = useState<boolean>(window.location.pathname === '/admin');
+  const [isAdminRoute, setIsAdminRoute] = useState<boolean>(() => {
+    const path = window.location.pathname;
+    return path === '/admin' || path.startsWith('/admin/');
+  });
 
   useEffect(() => {
     const handlePopState = () => {
-      setIsAdminRoute(window.location.pathname === '/admin');
+      const path = window.location.pathname;
+      setIsAdminRoute(path === '/admin' || path.startsWith('/admin/'));
     };
+
+    const handlePushState = () => {
+      const path = window.location.pathname;
+      setIsAdminRoute(path === '/admin' || path.startsWith('/admin/'));
+    };
+
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('pushstate', handlePushState);
+    window.addEventListener('replacestate', handlePushState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('pushstate', handlePushState);
+      window.removeEventListener('replacestate', handlePushState);
+    };
   }, []);
 
   const handleNavigate = (section: SectionId | 'admin') => {

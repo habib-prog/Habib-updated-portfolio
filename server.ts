@@ -78,7 +78,7 @@ async function startServer() {
 
   // Allow the separately deployed frontend to call this API.
   app.use((req, res, next) => {
-    const clientOrigin = process.env.CLIENT_ORIGIN;
+    const clientOrigin = process.env.CLIENT_ORIGIN?.replace(/\/$/, '');
     const origin = clientOrigin || req.headers.origin || '*';
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Headers', 'Content-Type, x-admin-passkey');
@@ -468,10 +468,21 @@ Provide a crisp, clear, highly technical yet accessible answer formatted with cl
       appType: "spa",
     });
     app.use(vite.middlewares);
+
+    app.get("*", (req, res) => {
+      if (req.path.startsWith("/api/")) {
+        return res.status(404).json({ error: "Not Found" });
+      }
+      const indexPath = path.join(process.cwd(), "index.html");
+      res.sendFile(indexPath);
+    });
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
+      if (req.path.startsWith("/api/")) {
+        return res.status(404).json({ error: "Not Found" });
+      }
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
