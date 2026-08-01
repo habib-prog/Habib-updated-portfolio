@@ -1,4 +1,4 @@
-# Systems & AI Architect Portfolio
+# Portfolio
 
 A full-stack portfolio site with an admin dashboard for managing the profile, projects, articles, research papers, footer content, and contact messages.
 
