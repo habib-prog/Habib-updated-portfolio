@@ -1,2 +1,2 @@
-/api/*  /api/:splat  404
+/api/*  https://habib-updated-portfolio.onrender.com/api/:splat  200
 /*  /index.html  200
