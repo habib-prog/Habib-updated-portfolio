@@ -107,6 +107,7 @@ interface SiteContextType {
   deleteContactMessage: (id: string) => void;
   resetToDefaults: () => void;
   refreshData: () => Promise<void>;
+  loading: boolean;
 }
 
 const STORAGE_KEY = 'habib_portfolio_site_store_v3';
@@ -114,6 +115,7 @@ const STORAGE_KEY = 'habib_portfolio_site_store_v3';
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData>(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY}_profile`) || localStorage.getItem(`habib_portfolio_site_store_v2_profile`);
@@ -276,7 +278,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    loadData();
+    loadData().finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   const refreshData = async () => {
@@ -587,7 +591,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       markMessageAsRead,
       deleteContactMessage,
       resetToDefaults,
-      refreshData
+      refreshData,
+      loading
     }}>
       {children}
     </SiteContext.Provider>

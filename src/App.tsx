@@ -12,7 +12,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { Footer } from './components/Footer';
 
 function AppContent() {
-  const { refreshData } = useSite();
+  const { refreshData, loading } = useSite();
   const [activeSection, setActiveSection] = useState<SectionId>('overview');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [isAdminRoute, setIsAdminRoute] = useState<boolean>(() => {
@@ -69,6 +69,17 @@ function AppContent() {
     await refreshData();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-xs text-[#86868b]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 antialiased ${
