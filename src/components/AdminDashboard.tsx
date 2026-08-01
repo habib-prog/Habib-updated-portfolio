@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSite } from '../context/SiteContext';
 import { Project, BlogArticle, ResearchPaper } from '../types';
+import { apiUrl } from '../lib/api';
 import { 
   ShieldCheck, 
   Lock, 
@@ -166,7 +167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ darkMode = false
     e.preventDefault();
     if (!newPasskey.trim()) return;
     try {
-      await fetch('/api/admin/passkey', {
+      await fetch(apiUrl('/api/admin/passkey'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +194,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ darkMode = false
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload", {
+      const res = await fetch(apiUrl('/api/upload'), {
         method: "POST",
         headers: {
           "x-admin-passkey": adminPasskey,

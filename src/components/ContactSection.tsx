@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSite } from '../context/SiteContext';
+import { apiUrl } from '../lib/api';
 import { 
   Mail, 
   Send, 
@@ -51,7 +52,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode = false
     setPinging(true);
     const start = performance.now();
     try {
-      await fetch('/api/health');
+      await fetch(apiUrl('/api/health'));
       const duration = Math.round(performance.now() - start);
       setPingLatency(duration);
     } catch {

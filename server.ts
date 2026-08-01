@@ -72,9 +72,21 @@ async function startServer() {
   }
 
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
+
+  // Allow the separately deployed frontend to call this API.
+  app.use((req, res, next) => {
+    const clientOrigin = process.env.CLIENT_ORIGIN;
+    if (clientOrigin) {
+      res.header('Access-Control-Allow-Origin', clientOrigin);
+      res.header('Access-Control-Allow-Headers', 'Content-Type, x-admin-passkey');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    }
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    next();
+  });
 
   // Helper middleware to verify admin passkey
   const verifyAdmin = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
