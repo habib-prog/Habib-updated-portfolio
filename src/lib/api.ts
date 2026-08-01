@@ -1,4 +1,17 @@
-const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const configuredApiBaseUrl = (
+  import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || ''
+).trim();
+const apiBaseUrl = configuredApiBaseUrl.replace(/\/$/, '');
 
-/** Builds an API URL for either the local Express server or a separately hosted API. */
-export const apiUrl = (path: string) => `${apiBaseUrl}${path}`;
+export const isApiAvailable = Boolean(configuredApiBaseUrl);
+
+export const apiRequest = (path: string, init?: RequestInit): Promise<Response> => {
+  if (!isApiAvailable) {
+    return Promise.resolve(new Response(null, {
+      status: 503,
+      statusText: 'API is not configured for this deployment',
+    }));
+  }
+
+  return fetch(`${apiBaseUrl}${path}`, init);
+};
